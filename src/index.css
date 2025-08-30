@@ -1,0 +1,4 @@
+@import "tailwindcss";
+
+/* optional, dein max-width var */
+:root { --app-max: 860px; }
