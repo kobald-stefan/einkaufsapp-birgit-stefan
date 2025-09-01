@@ -4,6 +4,7 @@ import type { Expense } from '../types'
 import { formatCurrency } from '../lib/calc'
 import { on } from '../lib/bus'
 import { formatDate } from '../lib/format'
+import { Link } from 'react-router-dom'
 
 function ymOf(date: string) {
   return date.slice(0, 7) // 'YYYY-MM'
@@ -114,9 +115,7 @@ export default function Expenses() {
               </div>
               <div className="text-right font-semibold">{formatCurrency(e.amount)}</div>
               <div className="text-right">
-                <a href={`/edit/${e.id}`} className="text-sm text-slate-500 underline">
-                  Bearbeiten
-                </a>
+                <Link to={`/edit/${e.id}`} className="text-sm text-slate-500 underline">Bearbeiten</Link>
               </div>
             </li>
           ))}
