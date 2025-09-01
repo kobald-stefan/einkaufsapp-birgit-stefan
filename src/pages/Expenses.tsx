@@ -5,7 +5,6 @@ import { formatCurrency } from '../lib/calc'
 import { on } from '../lib/bus'
 import { formatDate } from '../lib/format'
 import { Link } from 'react-router-dom'
-import { Link } from 'react-router-dom'
 
 function ymOf(date: string) {
   return date.slice(0, 7) // 'YYYY-MM'

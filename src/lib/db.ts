@@ -2,7 +2,7 @@ import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
 import type { Expense, Settings } from '../types';
 
 const DB_NAME = 'einkaufs_split_db';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 interface AppDB extends DBSchema {
   expenses: {
@@ -17,8 +17,33 @@ interface AppDB extends DBSchema {
   settings: {
     key: string;           // immer 'settings'
     value: Settings;
-  };
+  }
+
+  shopping: {
+    key: string            // item.id
+    value: ShoppingItem
+  }
 }
+
+export async function getDB() {
+  if (_db) return _db
+  _db = await openDB<AppDB>(DB_NAME, DB_VERSION, {
+    upgrade(db, oldVersion) {
+      if (!db.objectStoreNames.contains('expenses')) {
+        const s = db.createObjectStore('expenses', { keyPath: 'id' })
+        s.createIndex('by-date', 'date', { unique: false })
+        s.createIndex('by-payer', 'payerId', { unique: false })
+        s.createIndex('by-category', 'category', { unique: false })
+      }
+      if (!db.objectStoreNames.contains('settings')) {
+        db.createObjectStore('settings')
+      }
+      // NEU:
+      if (!db.objectStoreNames.contains('shopping')) {
+        db.createObjectStore('shopping', { keyPath: 'id' })
+      }
+    },
+  })
 
 let _db: IDBPDatabase<AppDB> | null = null;
 
