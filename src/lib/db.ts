@@ -17,33 +17,12 @@ interface AppDB extends DBSchema {
   settings: {
     key: string;           // immer 'settings'
     value: Settings;
-  }
-
+  };
   shopping: {
-    key: string            // item.id
-    value: ShoppingItem
-  }
+    key: string;           // item.id
+    value: ShoppingItem;
+  };
 }
-
-export async function getDB() {
-  if (_db) return _db
-  _db = await openDB<AppDB>(DB_NAME, DB_VERSION, {
-    upgrade(db, oldVersion) {
-      if (!db.objectStoreNames.contains('expenses')) {
-        const s = db.createObjectStore('expenses', { keyPath: 'id' })
-        s.createIndex('by-date', 'date', { unique: false })
-        s.createIndex('by-payer', 'payerId', { unique: false })
-        s.createIndex('by-category', 'category', { unique: false })
-      }
-      if (!db.objectStoreNames.contains('settings')) {
-        db.createObjectStore('settings')
-      }
-      // NEU:
-      if (!db.objectStoreNames.contains('shopping')) {
-        db.createObjectStore('shopping', { keyPath: 'id' })
-      }
-    },
-  })
 
 let _db: IDBPDatabase<AppDB> | null = null;
 
@@ -69,10 +48,11 @@ export async function getDB() {
         db.createObjectStore('settings');
       }
       if (!db.objectStoreNames.contains('shopping')) {
-  db.createObjectStore('shopping', { keyPath: 'id' });
-}
+        db.createObjectStore('shopping', { keyPath: 'id' });
+      }
     },
   });
+
   // Default-Settings beim ersten Start setzen
   const tx = _db.transaction('settings', 'readwrite');
   const existing = await tx.store.get('settings');
@@ -88,5 +68,6 @@ export async function getDB() {
     await tx.store.put(defaults, 'settings');
   }
   await tx.done;
+
   return _db;
 }
