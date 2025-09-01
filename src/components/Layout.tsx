@@ -13,17 +13,11 @@ export default function Layout() {
       const s = await pullFromCloud()
       setSyncState(s)
     }
-    // Start-Pull
     doPull()
 
-    // alle 60s
     const iv = setInterval(doPull, 60000)
-
-    // bei Tab-Fokus
     const onVis = () => { if (document.visibilityState === 'visible') doPull() }
     document.addEventListener('visibilitychange', onVis)
-
-    // bei Online wieder ziehen
     const onOnline = () => doPull()
     window.addEventListener('online', onOnline)
 
@@ -34,22 +28,27 @@ export default function Layout() {
     }
   }, [])
 
-  // Header mit Badge
   return (
     <div className="min-h-dvh bg-white text-slate-900">
-      <header className="mx-auto flex items-center justify-between max-w-[var(--app-max)] px-4 py-4">
+      <header className="mx-auto max-w-[var(--app-max)] px-4 py-4">
         <h1 className="text-xl font-semibold">Einkaufsapp Birgit & Stefan 🛒</h1>
-        <div className="text-xs">
+        
+        {/* Sync-Stempel unter der Überschrift */}
+        <div className="mt-1 text-xs">
           {syncState.syncing ? (
-            <span className="rounded-full border border-slate-300 px-3 py-1 text-slate-600">Synchronisiere…</span>
+            <span className="rounded-full border border-slate-300 px-3 py-1 text-slate-600">
+              Synchronisiere…
+            </span>
           ) : syncState.lastError ? (
             <span className="rounded-full border border-rose-300 bg-rose-50 px-3 py-1 text-rose-700">
               Offline / {syncState.lastError}
             </span>
           ) : (
             <span className="rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1 text-emerald-700">
-  {syncState.lastSyncAt ? `Synchronisiert ${formatRelative(syncState.lastSyncAt)}` : 'Synchronisiert'}
-</span>
+              {syncState.lastSyncAt
+                ? `Synchronisiert ${formatRelative(syncState.lastSyncAt)}`
+                : 'Synchronisiert'}
+            </span>
           )}
         </div>
       </header>
