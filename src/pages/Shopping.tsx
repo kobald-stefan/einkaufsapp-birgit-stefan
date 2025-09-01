@@ -44,7 +44,7 @@ export default function Shopping() {
           className="flex-1 rounded-lg border border-slate-300 px-3 py-2"
           onKeyDown={e=>{ if (e.key==='Enter') onAdd() }}
         />
-        <button onClick={onAdd} className="rounded-lg bg-slate-900 px-3 py-2 text-white">+ Hinzufügen</button>
+        <button onClick={onAdd} className="rounded-lg bg-red-800 hover:bg-red-600 px-3 py-2 text-white">+ Hinzufügen</button>
       </div>
 
       {items.length === 0 ? (
