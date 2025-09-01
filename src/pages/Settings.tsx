@@ -6,10 +6,17 @@ export default function Settings() {
   const [busy, setBusy] = useState(false)
 
   async function handleReset() {
-    if (confirm("Datenbank wirklich löschen? Alle Einträge gehen verloren.")) {
-      await resetDB()
-      location.reload()
+    const confirmed = confirm("Datenbank wirklich löschen? Alle Einträge gehen verloren.")
+    if (!confirmed) return
+
+    const password = prompt("Bitte Passwort eingeben:")
+    if (password !== "8a7y*Y~XRY£[t2L") {
+      alert("Falsches Passwort – Datenbank wird nicht zurückgesetzt.")
+      return
     }
+
+    await resetDB()
+    location.reload()
   }
 
   async function handleSyncNow() {
