@@ -1,5 +1,5 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
-import type { Expense, Settings } from '../types';
+import type { Expense, Settings, ShoppingItem } from '../types';
 
 const DB_NAME = 'einkaufs_split_db';
 const DB_VERSION = 2;
