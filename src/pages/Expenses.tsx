@@ -59,7 +59,7 @@ export default function Expenses() {
   return (
     <section className="py-2">
       <div className="mb-3 flex items-center justify-between">
-  <Link to="/shopping" className="rounded-lg bg-slate-900 px-3 py-2 text-white">Einkaufsliste</Link>
+  <Link to="/shopping" className="rounded-lg bg-red-800 hover:bg-red-600 px-3 py-2 text-white">Einkaufsliste</Link>
 </div>
       <div className="mb-3 flex flex-wrap gap-2">
         <select

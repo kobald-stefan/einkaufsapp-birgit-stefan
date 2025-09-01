@@ -46,7 +46,7 @@ export default function Layout() {
           ) : (
             <span className="rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1 text-emerald-700">
               {syncState.lastSyncAt
-                ? `Synchronisiert ${formatRelative(syncState.lastSyncAt)}`
+                ? `Synchronisiert: ${formatRelative(syncState.lastSyncAt)}`
                 : 'Synchronisiert'}
             </span>
           )}
