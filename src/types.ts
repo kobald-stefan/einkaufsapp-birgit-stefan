@@ -15,3 +15,9 @@ export type Settings = {
   categories: string[];
   currency: 'EUR';
 };
+
+export type ShoppingItem = {
+  id: string;          // z.B. "s_20250901_abcd12"
+  text: string;        // "Brot"
+  createdAt: string;   // ISO
+};

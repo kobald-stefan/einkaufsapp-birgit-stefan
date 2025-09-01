@@ -9,7 +9,7 @@ import Expenses from './pages/Expenses'
 import Month from './pages/Month'
 import Settings from './pages/Settings'
 import EditExpense from './pages/EditExpense'
-
+import Shopping from './pages/Shopping'
 
 const router = createBrowserRouter([
   {
@@ -22,6 +22,7 @@ const router = createBrowserRouter([
       { path: 'month', element: <Month /> },
       { path: 'settings', element: <Settings /> },
       { path: 'edit/:id', element: <EditExpense /> },
+      { path: 'shopping', element: <Shopping /> },
     ],
   },
 ])

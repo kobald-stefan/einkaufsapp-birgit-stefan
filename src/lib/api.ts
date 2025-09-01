@@ -31,3 +31,30 @@ export async function apiPut(exp: Expense) {
   })
   return j<{ok:true}>(res)
 }
+
+import type { ShoppingItem } from '../types'
+
+const shoppingURL = `${base}/.netlify/functions/shopping`
+
+export async function apiShoppingGetAll(): Promise<ShoppingItem[]> {
+  const res = await fetch(shoppingURL, { method: 'GET' })
+  if (!res.ok) throw new Error(await res.text())
+  return res.json()
+}
+
+export async function apiShoppingAdd(item: ShoppingItem) {
+  const res = await fetch(shoppingURL, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(item),
+  })
+  if (!res.ok) throw new Error(await res.text())
+  return res.json()
+}
+
+export async function apiShoppingDelete(id: string) {
+  const url = `${shoppingURL}?id=${encodeURIComponent(id)}`
+  const res = await fetch(url, { method: 'DELETE' })
+  if (!res.ok) throw new Error(await res.text())
+  return res.json()
+}

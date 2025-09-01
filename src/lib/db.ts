@@ -43,6 +43,9 @@ export async function getDB() {
       if (!db.objectStoreNames.contains('settings')) {
         db.createObjectStore('settings');
       }
+      if (!db.objectStoreNames.contains('shopping')) {
+  db.createObjectStore('shopping', { keyPath: 'id' });
+}
     },
   });
   // Default-Settings beim ersten Start setzen
