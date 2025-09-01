@@ -27,9 +27,11 @@ export async function deleteShopping(id: string) {
   apiShoppingDelete(id).catch(err => console.warn('shopping DELETE failed', err))
 }
 
-export async function upsertShoppingMany(list: ShoppingItem[]) {
+// NEU: replace statt upsertMany
+async function replaceShopping(list: ShoppingItem[]) {
   const db = await getDB()
   const tx = db.transaction('shopping', 'readwrite')
+  await tx.store.clear()
   for (const it of list) await tx.store.put(it)
   await tx.done
   emit('db-changed')
@@ -38,7 +40,7 @@ export async function upsertShoppingMany(list: ShoppingItem[]) {
 export async function pullShopping() {
   try {
     const remote = await apiShoppingGetAll()
-    await upsertShoppingMany(remote)
+    await replaceShopping(remote) // <— wichtig
   } catch (e) {
     console.warn('shopping pull failed', e)
   }

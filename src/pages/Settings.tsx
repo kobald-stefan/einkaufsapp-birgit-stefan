@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { pullFromCloud } from '../lib/sync'
 import { resetDB } from '../lib/db'
+import { pullShopping } from '../lib/shopping'
 
 export default function Settings() {
   const [busy, setBusy] = useState(false)
@@ -24,6 +25,7 @@ export default function Settings() {
     setBusy(true)
     try {
       await pullFromCloud()
+      await pullShopping()
     } finally {
       setBusy(false)
     }
