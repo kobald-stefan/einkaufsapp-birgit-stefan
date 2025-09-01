@@ -6,13 +6,27 @@ const dbName = process.env.DB_NAME || 'einkaufsapp'
 const collName = process.env.COLL_EXPENSES || 'expenses'
 const householdId = process.env.HOUSEHOLD_ID || 'birgit-stefan'
 
+// Ein globaler, wiederverwendbarer Client (pro Lambda-Container)
 let client: MongoClient | null = null
-async function getColl() {
-  if (!client) {
-    client = new MongoClient(uri)
-    await client.connect()
+let clientPromise: Promise<MongoClient> | null = null
+
+function getClient(): Promise<MongoClient> {
+  if (client) return Promise.resolve(client)
+  if (!clientPromise) {
+    const c = new MongoClient(uri, {
+      serverSelectionTimeoutMS: 5000, // schnell scheitern statt hängen
+    })
+    clientPromise = c.connect().then((connected) => {
+      client = connected
+      return connected
+    })
   }
-  return client.db(dbName).collection(collName)
+  return clientPromise
+}
+
+async function getColl() {
+  const c = await getClient()
+  return c.db(dbName).collection(collName)
 }
 
 export const handler: Handler = async (event) => {
@@ -41,9 +55,12 @@ export const handler: Handler = async (event) => {
       return { statusCode: 200, body: JSON.stringify({ ok: true }) }
     }
 
+    if (event.httpMethod === 'OPTIONS') {
+      return { statusCode: 204, body: '' }
+    }
+
     return { statusCode: 405, body: 'Method not allowed' }
   } catch (err: any) {
-    console.error(err)
-    return { statusCode: 500, body: err?.message || 'Server error' }
+    return { statusCode: 500, body: `DB error: ${err?.message || 'unknown'}` }
   }
 }
