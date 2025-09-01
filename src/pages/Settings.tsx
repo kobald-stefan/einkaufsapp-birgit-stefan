@@ -64,7 +64,7 @@ export default function Settings() {
           onClick={handleReset}
           className="mb-2 w-full rounded-lg border border-red-500 px-3 py-2 text-red-600"
         >
-          Datenbank zurücksetzen
+          Datenbank zurücksetzen (Passwort erforderlich)
         </button>
         <button
           type="button"
