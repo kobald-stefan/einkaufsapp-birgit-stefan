@@ -12,7 +12,7 @@ export default function AddExpense() {
   const [payer, setPayer] = useState<'stefan' | 'birgit'>('stefan')
 
   // Letzte Kategorie merken, Standard SPAR
-  const lastCat = (localStorage.getItem('lastCategory') || 'SPAR').toUpperCase()
+  const lastCat = (localStorage.getItem('lastCategory') || 'Spar').toUpperCase()
   const [category, setCategory] = useState(lastCat)
 
   const [busy, setBusy] = useState(false)
