@@ -3,17 +3,24 @@ import { useNavigate } from 'react-router-dom'
 import { addExpense } from '../lib/expenses'
 import { parseAmount } from '../lib/parse'
 
+type Payer = 'stefan' | 'birgit'
+type Category = 'Spar' | 'Hofer' | 'DM' | 'Lidl' | 'Sonstiges'
+const CATEGORIES: Category[] = ['Spar', 'Hofer', 'DM', 'Lidl', 'Sonstiges']
+
 export default function AddExpense() {
   const nav = useNavigate()
 
   const today = new Date().toISOString().slice(0, 10)
   const [date, setDate] = useState(today)
   const [amount, setAmount] = useState('')
-  const [payer, setPayer] = useState<'stefan' | 'birgit'>('stefan')
+  const [payer, setPayer] = useState<Payer>('stefan')
 
-  // Letzte Kategorie merken, Standard SPAR
-  const lastCat = (localStorage.getItem('lastCategory') || 'Spar').toUpperCase()
-  const [category, setCategory] = useState(lastCat)
+  // Letzte Kategorie merken, Standard: "Spar"
+  const stored = (localStorage.getItem('lastCategory') || 'Spar') as string
+  const initialCategory: Category = CATEGORIES.includes(stored as Category)
+    ? (stored as Category)
+    : 'Spar'
+  const [category, setCategory] = useState<Category>(initialCategory)
 
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
@@ -33,14 +40,14 @@ export default function AddExpense() {
 
     setBusy(true)
     try {
-      // Zuletzt gewählte Kategorie merken
+      // Zuletzt gewählte Kategorie merken (ohne Großschreibung zu verändern)
       localStorage.setItem('lastCategory', category)
 
       await addExpense({
         date,
         amount: val,
         payerId: payer,
-        category,
+        category, // z. B. "Spar", "Hofer", ...
       })
 
       if (andReset) {
@@ -119,14 +126,12 @@ export default function AddExpense() {
           <label className="block text-sm text-slate-600">Kategorie</label>
           <select
             value={category}
-            onChange={(e) => setCategory(e.target.value.toUpperCase())}
+            onChange={(e) => setCategory(e.target.value as Category)}
             className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
           >
-            <option>Spar</option>
-            <option>Hofer</option>
-            <option>DM</option>
-            <option>Lidl</option>
-            <option>Sonstiges</option>
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
           </select>
         </div>
 
