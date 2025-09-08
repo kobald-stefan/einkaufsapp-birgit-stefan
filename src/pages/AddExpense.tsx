@@ -23,9 +23,8 @@ export default function AddExpense() {
     ? localStorage.getItem('lastCategory')
     : null) as Category | null
 
-  const initialCategory: Category = stored && CATEGORIES.includes(stored)
-    ? stored
-    : 'Spar'
+  const initialCategory: Category =
+    stored && CATEGORIES.includes(stored) ? stored : 'Spar'
 
   const [category, setCategory] = useState<Category>(initialCategory)
   const [note, setNote] = useState<string>('') // optionale Beschreibung für "Sonstiges"
@@ -58,12 +57,15 @@ export default function AddExpense() {
         amount: val,
         payerId: payer,
         category,
-        note: category === 'Sonstiges' ? (note.trim() || undefined) : undefined,
+        note:
+          category.toLowerCase() === 'sonstiges'
+            ? note.trim() || undefined
+            : undefined,
       })
 
       if (andReset) {
         setAmount('')
-        if (category === 'Sonstiges') setNote('')
+        if (category.toLowerCase() === 'sonstiges') setNote('')
         setMsg('Gespeichert.')
       } else {
         nav('/') // zurück zum Dashboard
@@ -74,6 +76,8 @@ export default function AddExpense() {
       setBusy(false)
     }
   }
+
+  const isSonstiges = category.toLowerCase() === 'sonstiges'
 
   return (
     <section className="py-2">
@@ -158,7 +162,7 @@ export default function AddExpense() {
         </div>
 
         {/* Beschreibung nur für "Sonstiges" */}
-        {category === 'Sonstiges' && (
+        {isSonstiges && (
           <div>
             <label className="block text-sm text-slate-600">Beschreibung</label>
             <input
