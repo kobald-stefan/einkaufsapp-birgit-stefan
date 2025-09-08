@@ -125,8 +125,7 @@ export default function Expenses() {
               <div className="col-span-2">
                 <div className="text-sm text-slate-500">{formatDate(e.date)}</div>
                 <div className="font-medium">
-                  {e.category}
-                  {e.note ? ` · ${e.note}` : ''}
+                  {e.category}{e.note ? ` · ${e.note}` : ''}
                 </div>
               </div>
               <div>

@@ -16,7 +16,7 @@ function normalizeCategory(v: string | null | undefined): Category {
   if (s === 'hofer') return 'Hofer'
   if (s === 'dm') return 'DM'
   if (s === 'lidl') return 'Lidl'
-  if (s === 'sonstiges' || s === 'sonstige') return 'Sonstiges'
+  if (s === 'sonstiges' || s === 'sonstige' || s === 'sonstiges ') return 'Sonstiges'
   return 'Spar'
 }
 
@@ -31,7 +31,7 @@ export default function AddExpense() {
   const storedRaw =
     typeof window !== 'undefined' ? localStorage.getItem('lastCategory') : null
   const [category, setCategory] = useState<Category>(normalizeCategory(storedRaw))
-  const [note, setNote] = useState<string>('')
+  const [note, setNote] = useState<string>('') // NEU
 
   const [busy, setBusy] = useState<boolean>(false)
   const [msg, setMsg] = useState<string | null>(null)
@@ -62,12 +62,12 @@ export default function AddExpense() {
         amount: val,
         payerId: payer,
         category,
-        note: isSonstiges ? note.trim() || undefined : undefined,
+        note: isSonstiges ? note.trim() || undefined : undefined, // NEU
       })
 
       if (andReset) {
         setAmount('')
-        if (isSonstiges) setNote('')
+        if (isSonstiges) setNote('') // NEU
         setMsg('Gespeichert.')
       } else {
         nav('/')
