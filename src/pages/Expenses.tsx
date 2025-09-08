@@ -26,13 +26,9 @@ export default function Expenses() {
         setLoading(false)
       }
       await refresh()
-      stop = on('db-changed', () => {
-        refresh()
-      })
+      stop = on('db-changed', () => { refresh() })
     })()
-    return () => {
-      stop()
-    }
+    return () => { stop() }
   }, [])
 
   const months = useMemo(() => {
@@ -96,9 +92,7 @@ export default function Expenses() {
 
         <select
           value={payer}
-          onChange={(e) =>
-            setPayer(e.target.value as 'Alle' | 'Stefan' | 'Birgit')
-          }
+          onChange={(e) => setPayer(e.target.value as 'Alle' | 'Stefan' | 'Birgit')}
           className="rounded-lg border border-slate-300 px-3 py-2"
         >
           <option>Alle</option>
@@ -118,10 +112,7 @@ export default function Expenses() {
       ) : (
         <ul className="divide-y divide-slate-200 rounded-xl border border-slate-200">
           {filtered.map((e) => (
-            <li
-              key={e.id}
-              className="grid grid-cols-5 items-center gap-2 px-4 py-3"
-            >
+            <li key={e.id} className="grid grid-cols-5 items-center gap-2 px-4 py-3">
               <div className="col-span-2">
                 <div className="text-sm text-slate-500">{formatDate(e.date)}</div>
                 <div className="font-medium">

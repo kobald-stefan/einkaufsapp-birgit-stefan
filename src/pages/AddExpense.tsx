@@ -5,15 +5,16 @@ import { parseAmount } from '../lib/parse'
 
 type Payer = 'stefan' | 'birgit'
 
-const CATEGORIES: string[] = ['Spar', 'Hofer', 'DM', 'Lidl', 'SONSTIGES']
+const CATEGORIES = ['Spar', 'Hofer', 'DM', 'Lidl', 'SONSTIGES'] as const
+type Category = typeof CATEGORIES[number]
 
-// Normalisiert evtl. unterschiedliche Schreibweisen auf einheitlich 'SONSTIGES'
-function normalizeCategory(v: string | null | undefined): string {
+// Normalisiert auf exakt 'SONSTIGES' oder eine der fixen Kategorien
+function normalizeCategory(v: string | null | undefined): Category {
   if (!v) return 'Spar'
   const s = v.trim()
-  if (s.toUpperCase() === 'SONSTIGES') return 'SONSTIGES'
-  // Bekannte Kategorien unverändert zurückgeben, ansonsten Fallback
-  if (['Spar', 'Hofer', 'DM', 'Lidl'].includes(s)) return s
+  const up = s.toUpperCase()
+  if (up === 'SONSTIGES') return 'SONSTIGES'
+  if (s === 'Spar' || s === 'Hofer' || s === 'DM' || s === 'Lidl') return s as Category
   return 'Spar'
 }
 
@@ -25,21 +26,20 @@ export default function AddExpense() {
   const [amount, setAmount] = useState<string>('')
   const [payer, setPayer] = useState<Payer>('stefan')
 
-  const storedRaw = typeof window !== 'undefined'
-    ? localStorage.getItem('lastCategory')
-    : null
-  const [category, setCategory] = useState<string>(normalizeCategory(storedRaw))
+  const storedRaw = typeof window !== 'undefined' ? localStorage.getItem('lastCategory') : null
+  const [category, setCategory] = useState<Category>(normalizeCategory(storedRaw))
   const [note, setNote] = useState<string>('') // NEU
 
   const [busy, setBusy] = useState<boolean>(false)
   const [msg, setMsg] = useState<string | null>(null)
 
   const amountRef = useRef<HTMLInputElement>(null)
+
   useEffect(() => {
     amountRef.current?.focus()
   }, [])
 
-  const isSonstiges = category?.trim().toUpperCase() === 'SONSTIGES'
+  const isSonstiges = category.trim().toUpperCase() === 'SONSTIGES'
 
   async function handleSave(andReset: boolean) {
     setMsg(null)
@@ -59,12 +59,12 @@ export default function AddExpense() {
         amount: val,
         payerId: payer,
         category,
-        note: isSonstiges ? note.trim() || undefined : undefined, // NEU
+        note: isSonstiges ? (note.trim() || undefined) : undefined, // nur bei SONSTIGES
       })
 
       if (andReset) {
         setAmount('')
-        if (isSonstiges) setNote('') // NEU
+        if (isSonstiges) setNote('')
         setMsg('Gespeichert.')
       } else {
         nav('/')
@@ -120,22 +120,14 @@ export default function AddExpense() {
             <button
               type="button"
               onClick={() => setPayer('stefan')}
-              className={`flex-1 rounded-lg border px-3 py-2 ${
-                payer === 'stefan'
-                  ? 'border-slate-900 bg-green-100'
-                  : 'border-slate-300 bg-white'
-              }`}
+              className={`flex-1 rounded-lg border px-3 py-2 ${payer === 'stefan' ? 'border-slate-900 bg-green-100' : 'border-slate-300 bg-white'}`}
             >
               Stefan
             </button>
             <button
               type="button"
               onClick={() => setPayer('birgit')}
-              className={`flex-1 rounded-lg border px-3 py-2 ${
-                payer === 'birgit'
-                  ? 'border-slate-900 bg-green-100'
-                  : 'border-slate-300 bg-white'
-              }`}
+              className={`flex-1 rounded-lg border px-3 py-2 ${payer === 'birgit' ? 'border-slate-900 bg-green-100' : 'border-slate-300 bg-white'}`}
             >
               Birgit
             </button>

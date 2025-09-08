@@ -13,7 +13,6 @@ export default function Dashboard() {
 
   useEffect(() => {
     let stop: () => void = () => {}
-
     ;(async () => {
       async function refresh() {
         const list = await getAllExpenses()
@@ -21,16 +20,10 @@ export default function Dashboard() {
         setBalance(calcBalance(list))
         setLoading(false)
       }
-
       await refresh()
-      stop = on('db-changed', () => {
-        refresh()
-      })
+      stop = on('db-changed', () => { refresh() })
     })()
-
-  return () => {
-      stop()
-    }
+    return () => { stop() }
   }, [])
 
   const last5 = expenses.slice(0, 5)
