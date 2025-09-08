@@ -8,26 +8,30 @@ type Category = 'Spar' | 'Hofer' | 'DM' | 'Lidl' | 'Sonstiges'
 
 const CATEGORIES: Category[] = ['Spar', 'Hofer', 'DM', 'Lidl', 'Sonstiges']
 
+// Normalisiert evtl. alte/abweichende Werte (z. B. "SONSTIGES")
+function normalizeCategory(v: string | null | undefined): Category {
+  if (!v) return 'Spar'
+  const s = v.trim().toLowerCase()
+  if (s === 'spar') return 'Spar'
+  if (s === 'hofer') return 'Hofer'
+  if (s === 'dm') return 'DM'
+  if (s === 'lidl') return 'Lidl'
+  if (s === 'sonstiges' || s === 'sonstige') return 'Sonstiges'
+  return 'Spar'
+}
+
 export default function AddExpense() {
   const nav = useNavigate()
-
   const today = new Date().toISOString().slice(0, 10)
 
-  // --- State ---
   const [date, setDate] = useState<string>(today)
   const [amount, setAmount] = useState<string>('')
   const [payer, setPayer] = useState<Payer>('stefan')
 
-  // Letzte Kategorie merken, Standard "Spar"
-  const stored = (typeof window !== 'undefined'
-    ? localStorage.getItem('lastCategory')
-    : null) as Category | null
-
-  const initialCategory: Category =
-    stored && CATEGORIES.includes(stored) ? stored : 'Spar'
-
-  const [category, setCategory] = useState<Category>(initialCategory)
-  const [note, setNote] = useState<string>('') // optionale Beschreibung für "Sonstiges"
+  const storedRaw =
+    typeof window !== 'undefined' ? localStorage.getItem('lastCategory') : null
+  const [category, setCategory] = useState<Category>(normalizeCategory(storedRaw))
+  const [note, setNote] = useState<string>('')
 
   const [busy, setBusy] = useState<boolean>(false)
   const [msg, setMsg] = useState<string | null>(null)
@@ -37,6 +41,8 @@ export default function AddExpense() {
   useEffect(() => {
     amountRef.current?.focus()
   }, [])
+
+  const isSonstiges = category === 'Sonstiges'
 
   async function handleSave(andReset: boolean) {
     setMsg(null)
@@ -49,7 +55,6 @@ export default function AddExpense() {
 
     setBusy(true)
     try {
-      // Zuletzt gewählte Kategorie speichern
       localStorage.setItem('lastCategory', category)
 
       await addExpense({
@@ -57,18 +62,15 @@ export default function AddExpense() {
         amount: val,
         payerId: payer,
         category,
-        note:
-          category.toLowerCase() === 'Sonstiges'
-            ? note.trim() || undefined
-            : undefined,
+        note: isSonstiges ? note.trim() || undefined : undefined,
       })
 
       if (andReset) {
         setAmount('')
-        if (category.toLowerCase() === 'onstiges') setNote('')
+        if (isSonstiges) setNote('')
         setMsg('Gespeichert.')
       } else {
-        nav('/') // zurück zum Dashboard
+        nav('/')
       }
     } catch (err: any) {
       setMsg(err?.message ?? 'Fehler beim Speichern.')
@@ -76,8 +78,6 @@ export default function AddExpense() {
       setBusy(false)
     }
   }
-
-  const isSonstiges = category.toLowerCase() === 'Sonstiges'
 
   return (
     <section className="py-2">
@@ -150,7 +150,7 @@ export default function AddExpense() {
           <label className="block text-sm text-slate-600">Kategorie</label>
           <select
             value={category}
-            onChange={(e) => setCategory(e.target.value as Category)}
+            onChange={(e) => setCategory(normalizeCategory(e.target.value))}
             className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
           >
             {CATEGORIES.map((c) => (
