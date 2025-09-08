@@ -4,19 +4,16 @@ import { addExpense } from '../lib/expenses'
 import { parseAmount } from '../lib/parse'
 
 type Payer = 'stefan' | 'birgit'
-type Category = 'Spar' | 'Hofer' | 'DM' | 'Lidl' | 'Sonstiges'
 
-const CATEGORIES: Category[] = ['Spar', 'Hofer', 'DM', 'Lidl', 'Sonstiges']
+const CATEGORIES: string[] = ['Spar', 'Hofer', 'DM', 'Lidl', 'SONSTIGES']
 
-// Normalisiert evtl. alte/abweichende Werte (z. B. "SONSTIGES")
-function normalizeCategory(v: string | null | undefined): Category {
+// Normalisiert evtl. unterschiedliche Schreibweisen auf einheitlich 'SONSTIGES'
+function normalizeCategory(v: string | null | undefined): string {
   if (!v) return 'Spar'
-  const s = v.trim().toLowerCase()
-  if (s === 'spar') return 'Spar'
-  if (s === 'hofer') return 'Hofer'
-  if (s === 'dm') return 'DM'
-  if (s === 'lidl') return 'Lidl'
-  if (s === 'Sonstiges' || s === 'sonstige' || s === 'Sonstiges ') return 'Sonstiges'
+  const s = v.trim()
+  if (s.toUpperCase() === 'SONSTIGES') return 'SONSTIGES'
+  // Bekannte Kategorien unverändert zurückgeben, ansonsten Fallback
+  if (['Spar', 'Hofer', 'DM', 'Lidl'].includes(s)) return s
   return 'Spar'
 }
 
@@ -28,21 +25,21 @@ export default function AddExpense() {
   const [amount, setAmount] = useState<string>('')
   const [payer, setPayer] = useState<Payer>('stefan')
 
-  const storedRaw =
-    typeof window !== 'undefined' ? localStorage.getItem('lastCategory') : null
-  const [category, setCategory] = useState<Category>(normalizeCategory(storedRaw))
+  const storedRaw = typeof window !== 'undefined'
+    ? localStorage.getItem('lastCategory')
+    : null
+  const [category, setCategory] = useState<string>(normalizeCategory(storedRaw))
   const [note, setNote] = useState<string>('') // NEU
 
   const [busy, setBusy] = useState<boolean>(false)
   const [msg, setMsg] = useState<string | null>(null)
 
   const amountRef = useRef<HTMLInputElement>(null)
-
   useEffect(() => {
     amountRef.current?.focus()
   }, [])
 
-  const isSonstiges = category === 'Sonstiges'
+  const isSonstiges = category?.trim().toUpperCase() === 'SONSTIGES'
 
   async function handleSave(andReset: boolean) {
     setMsg(null)
@@ -161,7 +158,7 @@ export default function AddExpense() {
           </select>
         </div>
 
-        {/* Beschreibung nur für "Sonstiges" */}
+        {/* Beschreibung nur für SONSTIGES */}
         {isSonstiges && (
           <div>
             <label className="block text-sm text-slate-600">Beschreibung</label>
