@@ -5,25 +5,34 @@ import { parseAmount } from '../lib/parse'
 
 type Payer = 'stefan' | 'birgit'
 type Category = 'Spar' | 'Hofer' | 'DM' | 'Lidl' | 'Sonstiges'
+
 const CATEGORIES: Category[] = ['Spar', 'Hofer', 'DM', 'Lidl', 'Sonstiges']
 
 export default function AddExpense() {
   const nav = useNavigate()
 
   const today = new Date().toISOString().slice(0, 10)
-  const [date, setDate] = useState(today)
-  const [amount, setAmount] = useState('')
+
+  // --- State ---
+  const [date, setDate] = useState<string>(today)
+  const [amount, setAmount] = useState<string>('')
   const [payer, setPayer] = useState<Payer>('stefan')
 
-  // Letzte Kategorie merken, Standard: "Spar"
-  const stored = (localStorage.getItem('lastCategory') || 'Spar') as string
-  const initialCategory: Category = CATEGORIES.includes(stored as Category)
-    ? (stored as Category)
-    : 'Spar'
-  const [category, setCategory] = useState<Category>(initialCategory)
+  // Letzte Kategorie merken, Standard "Spar"
+  const stored = (typeof window !== 'undefined'
+    ? localStorage.getItem('lastCategory')
+    : null) as Category | null
 
-  const [busy, setBusy] = useState(false)
+  const initialCategory: Category = stored && CATEGORIES.includes(stored)
+    ? stored
+    : 'Spar'
+
+  const [category, setCategory] = useState<Category>(initialCategory)
+  const [note, setNote] = useState<string>('') // optionale Beschreibung für "Sonstiges"
+
+  const [busy, setBusy] = useState<boolean>(false)
   const [msg, setMsg] = useState<string | null>(null)
+
   const amountRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -32,6 +41,7 @@ export default function AddExpense() {
 
   async function handleSave(andReset: boolean) {
     setMsg(null)
+
     const val = parseAmount(amount)
     if (isNaN(val) || val <= 0) {
       setMsg('Bitte einen gültigen Betrag eingeben.')
@@ -40,18 +50,20 @@ export default function AddExpense() {
 
     setBusy(true)
     try {
-      // Zuletzt gewählte Kategorie merken (ohne Großschreibung zu verändern)
+      // Zuletzt gewählte Kategorie speichern
       localStorage.setItem('lastCategory', category)
 
       await addExpense({
         date,
         amount: val,
         payerId: payer,
-        category, // z. B. "Spar", "Hofer", ...
+        category,
+        note: category === 'Sonstiges' ? (note.trim() || undefined) : undefined,
       })
 
       if (andReset) {
         setAmount('')
+        if (category === 'Sonstiges') setNote('')
         setMsg('Gespeichert.')
       } else {
         nav('/') // zurück zum Dashboard
@@ -66,6 +78,7 @@ export default function AddExpense() {
   return (
     <section className="py-2">
       <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+        {/* Datum */}
         <div>
           <label className="block text-sm text-slate-600">Datum</label>
           <div className="mt-1 flex gap-2">
@@ -85,6 +98,7 @@ export default function AddExpense() {
           </div>
         </div>
 
+        {/* Betrag */}
         <div>
           <label className="block text-sm text-slate-600">Betrag (€)</label>
           <input
@@ -98,14 +112,17 @@ export default function AddExpense() {
           />
         </div>
 
+        {/* Zahler */}
         <div>
           <label className="block text-sm text-slate-600">Zahler</label>
           <div className="mt-1 flex gap-2">
             <button
               type="button"
               onClick={() => setPayer('stefan')}
-              className={`flex-1 rounded-lg border px-3 py-2 bg-green-100 ${
-                payer === 'stefan' ? 'border-slate-900' : 'border-slate-300'
+              className={`flex-1 rounded-lg border px-3 py-2 ${
+                payer === 'stefan'
+                  ? 'border-slate-900 bg-green-100'
+                  : 'border-slate-300 bg-white'
               }`}
             >
               Stefan
@@ -113,8 +130,10 @@ export default function AddExpense() {
             <button
               type="button"
               onClick={() => setPayer('birgit')}
-              className={`flex-1 rounded-lg border px-3 py-2 bg-green-100 ${
-                payer === 'birgit' ? 'border-slate-900' : 'border-slate-300'
+              className={`flex-1 rounded-lg border px-3 py-2 ${
+                payer === 'birgit'
+                  ? 'border-slate-900 bg-green-100'
+                  : 'border-slate-300 bg-white'
               }`}
             >
               Birgit
@@ -122,6 +141,7 @@ export default function AddExpense() {
           </div>
         </div>
 
+        {/* Kategorie */}
         <div>
           <label className="block text-sm text-slate-600">Kategorie</label>
           <select
@@ -130,10 +150,25 @@ export default function AddExpense() {
             className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
           >
             {CATEGORIES.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>
+                {c}
+              </option>
             ))}
           </select>
         </div>
+
+        {/* Beschreibung nur für "Sonstiges" */}
+        {category === 'Sonstiges' && (
+          <div>
+            <label className="block text-sm text-slate-600">Beschreibung</label>
+            <input
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder='z. B. "Kindergarten"'
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+            />
+          </div>
+        )}
 
         <p className="text-sm text-slate-500">Aufteilung: fix 50/50</p>
 
@@ -148,7 +183,7 @@ export default function AddExpense() {
             type="button"
             disabled={busy}
             onClick={() => handleSave(false)}
-            className="flex-1 rounded-lg px-3 py-2 bg-red-900 hover:bg-red-800 text-white disabled:opacity-60"
+            className="flex-1 rounded-lg bg-red-900 px-3 py-2 text-white hover:bg-red-800 disabled:opacity-60"
           >
             {busy ? 'Speichern…' : 'Speichern'}
           </button>

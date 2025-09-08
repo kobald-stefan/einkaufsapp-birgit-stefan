@@ -21,3 +21,14 @@ export type ShoppingItem = {
   text: string;        // "Brot"
   createdAt: string;   // ISO
 };
+
+export type Expense = {
+  id: string;
+  date: string;
+  amount: number;
+  payerId: UserId;
+  category: string;
+  createdAt: string;
+  updatedAt: string;
+  note?: string;        // <— NEU (nur bei SONSTIGES genutzt)
+};

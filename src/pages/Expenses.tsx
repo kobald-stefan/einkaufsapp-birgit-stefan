@@ -12,13 +12,13 @@ function ymOf(date: string) {
 
 export default function Expenses() {
   const [all, setAll] = useState<Expense[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState<boolean>(true)
   const [month, setMonth] = useState<string>('Alle')
   const [category, setCategory] = useState<string>('Alle')
   const [payer, setPayer] = useState<'Alle' | 'Stefan' | 'Birgit'>('Alle')
 
   useEffect(() => {
-    let stop = () => {}
+    let stop: () => void = () => {}
     ;(async () => {
       async function refresh() {
         const list = await getAllExpenses()
@@ -36,16 +36,16 @@ export default function Expenses() {
   }, [])
 
   const months = useMemo(() => {
-    const set = new Set(all.map(e => ymOf(e.date)))
+    const set = new Set(all.map((e) => ymOf(e.date)))
     return Array.from(set).sort().reverse()
   }, [all])
 
   const categories = useMemo(() => {
-    const set = new Set(all.map(e => e.category))
+    const set = new Set(all.map((e) => e.category))
     return Array.from(set).sort()
   }, [all])
 
-  const filtered = all.filter(e => {
+  const filtered = all.filter((e) => {
     if (month !== 'Alle' && ymOf(e.date) !== month) return false
     if (category !== 'Alle' && e.category !== category) return false
     if (payer !== 'Alle') {
@@ -59,16 +59,22 @@ export default function Expenses() {
   return (
     <section className="py-2">
       <div className="mb-3 flex items-center justify-between">
-  <Link to="/shopping" className="rounded-lg bg-red-800 hover:bg-red-600 px-3 py-2 text-white">Einkaufsliste</Link>
-</div>
+        <Link
+          to="/shopping"
+          className="rounded-lg bg-red-800 px-3 py-2 text-white hover:bg-red-600"
+        >
+          Einkaufsliste
+        </Link>
+      </div>
+
       <div className="mb-3 flex flex-wrap gap-2">
         <select
           value={month}
-          onChange={e => setMonth(e.target.value)}
+          onChange={(e) => setMonth(e.target.value)}
           className="rounded-lg border border-slate-300 px-3 py-2"
         >
           <option>Alle</option>
-          {months.map(m => (
+          {months.map((m) => (
             <option key={m} value={m}>
               {m}
             </option>
@@ -77,11 +83,11 @@ export default function Expenses() {
 
         <select
           value={category}
-          onChange={e => setCategory(e.target.value)}
+          onChange={(e) => setCategory(e.target.value)}
           className="rounded-lg border border-slate-300 px-3 py-2"
         >
           <option>Alle</option>
-          {categories.map(c => (
+          {categories.map((c) => (
             <option key={c} value={c}>
               {c}
             </option>
@@ -90,7 +96,9 @@ export default function Expenses() {
 
         <select
           value={payer}
-          onChange={e => setPayer(e.target.value as any)}
+          onChange={(e) =>
+            setPayer(e.target.value as 'Alle' | 'Stefan' | 'Birgit')
+          }
           className="rounded-lg border border-slate-300 px-3 py-2"
         >
           <option>Alle</option>
@@ -100,25 +108,39 @@ export default function Expenses() {
       </div>
 
       {loading ? (
-        <div className="rounded-xl border border-slate-200 p-4 text-slate-500">Lade…</div>
+        <div className="rounded-xl border border-slate-200 p-4 text-slate-500">
+          Lade…
+        </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-xl border border-slate-200 p-4 text-slate-500">Keine Einträge.</div>
+        <div className="rounded-xl border border-slate-200 p-4 text-slate-500">
+          Keine Einträge.
+        </div>
       ) : (
         <ul className="divide-y divide-slate-200 rounded-xl border border-slate-200">
-          {filtered.map(e => (
-            <li key={e.id} className="grid grid-cols-5 items-center px-4 py-3 gap-2">
+          {filtered.map((e) => (
+            <li
+              key={e.id}
+              className="grid grid-cols-5 items-center gap-2 px-4 py-3"
+            >
               <div className="col-span-2">
                 <div className="text-sm text-slate-500">{formatDate(e.date)}</div>
-                <div className="font-medium">{e.category}</div>
+                <div className="font-medium">
+                  {e.category}
+                  {e.note ? ` · ${e.note}` : ''}
+                </div>
               </div>
               <div>
                 <span className="rounded-full border border-slate-300 px-2 py-0.5 text-xs">
                   {e.payerId === 'stefan' ? 'Stefan' : 'Birgit'}
                 </span>
               </div>
-              <div className="text-right font-semibold">{formatCurrency(e.amount)}</div>
+              <div className="text-right font-semibold">
+                {formatCurrency(e.amount)}
+              </div>
               <div className="text-right">
-                <Link to={`/edit/${e.id}`} className="text-sm text-slate-500 underline">Bearbeiten</Link>
+                <Link to={`/edit/${e.id}`} className="text-sm text-slate-500 underline">
+                  Bearbeiten
+                </Link>
               </div>
             </li>
           ))}

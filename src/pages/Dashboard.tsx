@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { getAllExpenses } from '../lib/expenses'
 import { calcBalance, formatCurrency } from '../lib/calc'
 import type { Expense } from '../types'
-import { Link } from 'react-router-dom'
 import { formatDate } from '../lib/format'
 import { on } from '../lib/bus'
 
 export default function Dashboard() {
   const [expenses, setExpenses] = useState<Expense[]>([])
-  const [balance, setBalance] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const [balance, setBalance] = useState<number>(0)
+  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
-    let stop = () => {}
+    let stop: () => void = () => {}
+
     ;(async () => {
       async function refresh() {
         const list = await getAllExpenses()
@@ -20,10 +21,16 @@ export default function Dashboard() {
         setBalance(calcBalance(list))
         setLoading(false)
       }
+
       await refresh()
-      stop = on('db-changed', () => { refresh() })
+      stop = on('db-changed', () => {
+        refresh()
+      })
     })()
-    return () => { stop() }
+
+    return () => {
+      stop()
+    }
   }, [])
 
   const last5 = expenses.slice(0, 5)
@@ -44,12 +51,16 @@ export default function Dashboard() {
       </div>
 
       <div className="mt-4">
-        <Link to="/add" className="inline-block rounded-lg bg-red-800 hover:bg-red-600 px-4 py-2 text-white">
+        <Link
+          to="/add"
+          className="inline-block rounded-lg bg-red-800 px-4 py-2 text-white hover:bg-red-600"
+        >
           + EINKAUF
         </Link>
       </div>
 
-      <h2 className="mt-6 mb-2 text-base font-medium">Letzte Einkäufe</h2>
+      <h2 className="mb-2 mt-6 text-base font-medium">Letzte Einkäufe</h2>
+
       {last5.length === 0 ? (
         <div className="rounded-xl border border-slate-200 p-4 text-slate-500">
           Noch keine Daten. Lege über „+ EINKAUF“ den ersten Eintrag an.
@@ -61,6 +72,7 @@ export default function Dashboard() {
               <div>
                 <div className="text-sm text-slate-500">
                   {formatDate(e.date)} · {e.category}
+                  {e.note ? ` · ${e.note}` : ''}
                 </div>
                 <div className="mt-0.5 inline-flex items-center gap-2">
                   <span className="rounded-full border border-slate-300 px-2 py-0.5 text-xs">
@@ -68,7 +80,9 @@ export default function Dashboard() {
                   </span>
                 </div>
               </div>
-              <div className="text-right font-semibold">{formatCurrency(e.amount)}</div>
+              <div className="text-right font-semibold">
+                {formatCurrency(e.amount)}
+              </div>
             </li>
           ))}
         </ul>
