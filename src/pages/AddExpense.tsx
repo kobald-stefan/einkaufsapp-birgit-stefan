@@ -58,14 +58,14 @@ export default function AddExpense() {
         payerId: payer,
         category,
         note:
-          category.toLowerCase() === 'sonstiges'
+          category.toLowerCase() === 'Sonstiges'
             ? note.trim() || undefined
             : undefined,
       })
 
       if (andReset) {
         setAmount('')
-        if (category.toLowerCase() === 'sonstiges') setNote('')
+        if (category.toLowerCase() === 'onstiges') setNote('')
         setMsg('Gespeichert.')
       } else {
         nav('/') // zurück zum Dashboard
@@ -77,7 +77,7 @@ export default function AddExpense() {
     }
   }
 
-  const isSonstiges = category.toLowerCase() === 'sonstiges'
+  const isSonstiges = category.toLowerCase() === 'Sonstiges'
 
   return (
     <section className="py-2">
