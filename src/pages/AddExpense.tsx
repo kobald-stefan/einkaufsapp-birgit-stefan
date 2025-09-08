@@ -16,7 +16,7 @@ function normalizeCategory(v: string | null | undefined): Category {
   if (s === 'hofer') return 'Hofer'
   if (s === 'dm') return 'DM'
   if (s === 'lidl') return 'Lidl'
-  if (s === 'sonstiges' || s === 'sonstige' || s === 'sonstiges ') return 'Sonstiges'
+  if (s === 'Sonstiges' || s === 'sonstige' || s === 'Sonstiges ') return 'Sonstiges'
   return 'Spar'
 }
 
