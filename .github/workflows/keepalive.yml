@@ -1,8 +1,10 @@
 name: keep-supabase-awake
 on:
-  schedule:
-    - cron: '0 9 */3 * *'   # alle 3 Tage 09:00 UTC
+  push:
+    branches: [ main ]
   workflow_dispatch:
+  schedule:
+    - cron: '0 9 */3 * *'
 
 jobs:
   ping:
